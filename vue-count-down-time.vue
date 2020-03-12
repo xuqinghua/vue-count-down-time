@@ -45,19 +45,22 @@ export default {
             hour: '',
             min: '',
             sec: '',
-            leftTimeHtml: ''
+            leftTimeHtml: '',
+            setTimeoutFunc:null
         };
     },
     created() {
         const start = this.getTimeStamp(this.startTime, this.startTimeFormat);
         const end = this.getTimeStamp(this.endTime, this.endTimeFormat);
         this.msec = end - start;
-        console.log(end);
         if (this.startCallBk){
             this.startCallBk();
         }
-        console.log(this.endCallBk);
         this.countDownTimer();
+        //组件销毁的时候，清除掉定时器
+        this.$once('hook:beforeDestroy', () => {            
+            this.setTimeoutFunc && clearTimeout(this.setTimeoutFunc);                                    
+        });
     },
     methods: {
         getTimeStamp(time, timeFormat){
@@ -91,8 +94,7 @@ export default {
                 this.endCallBk && this.endCallBk();
                 return;
             }
-            
-            setTimeout( () => {
+            this.setTimeoutFunc =  setTimeout( () => {
                 this.msec = this.msec - this.timeInterval;
                 this.countDownTimer();
             }, this.timeInterval);
